@@ -1,0 +1,13 @@
+node_modules/
+agents/
+public/scripts/
+views/
+*.min.js
+dist/
+build/
+# Ignore test files for now
+**/test/
+**/tests/
+# Ignore generated files
+docs/
+coverage/

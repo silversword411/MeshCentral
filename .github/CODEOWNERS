@@ -1,0 +1,25 @@
+# Global code owners - these users will be requested for review on all PRs
+* @Ylianst
+
+# Configuration files require admin review
+package.json @Ylianst
+package-lock.json @Ylianst
+.eslintrc* @Ylianst
+.prettierrc* @Ylianst
+.github/ @Ylianst
+
+# Core server files
+meshcentral.js @Ylianst
+webserver.js @Ylianst
+db.js @Ylianst
+common.js @Ylianst
+
+# Security-sensitive files
+authenticode.js @Ylianst
+certoperations.js @Ylianst
+letsencrypt.js @Ylianst
+webauthn.js @Ylianst
+
+# AMT-related files
+amt*.js @Ylianst
+mpsserver.js @Ylianst

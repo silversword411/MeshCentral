@@ -1,4 +1,49 @@
 {
+    // ESLint and Prettier configuration
+    "eslint.enable": true,
+    "eslint.validate": ["javascript"],
+    "eslint.format.enable": true,
+    "eslint.lintTask.enable": true,
+
+    // Prettier configuration
+    "prettier.enable": true,
+    "prettier.requireConfig": true,
+
+    // Default formatter
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "editor.formatOnType": false,
+
+    // Language-specific settings
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true,
+        "editor.formatOnType": false,
+        "editor.codeActionsOnSave": {
+            "source.fixAll.eslint": "explicit"
+        }
+    },
+    "[json]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+
+    // File associations
+    "files.associations": {
+        "*.js": "javascript"
+    },
+
+    // Auto-save settings
+    "files.autoSave": "onFocusChange",
+
+    // Line ending consistency
+    "files.eol": "\n",
+
+    // Trim whitespace
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true,
     "cSpell.words": [
         "abcdf",
         "accountchange",

@@ -1,0 +1,9 @@
+node_modules/
+agents/
+public/scripts/
+views/
+*.min.js
+dist/
+build/
+package-lock.json
+*.md
