@@ -2246,6 +2246,7 @@ module.exports.CreateWebServer = function (parent, db, args, certificates, doneF
                     }
 
                     // Render the page
+                    if (page == 'ssh') { res.set({ 'Content-Security-Policy': res.locals.cspWasm }); }
                     render(req, res, getRenderPage(page, req, domain), getRenderArgs({ cookie: req.query.ws, name: encodeURIComponent(req.query.name).replace(/'/g, '%27'), serverCredentials: serverCredentials, features: features }, req, domain));
                 });
                 return;
@@ -2265,7 +2266,7 @@ module.exports.CreateWebServer = function (parent, db, args, certificates, doneF
         }
 
         // If there is no nodeid, exit now
-        if (req.query.node == null) { render(req, res, getRenderPage(page, req, domain), getRenderArgs({ cookie: '', name: '', features: features }, req, domain)); return; }
+        if (req.query.node == null) { if (page == 'ssh') { res.set({ 'Content-Security-Policy': res.locals.cspWasm }); } render(req, res, getRenderPage(page, req, domain), getRenderArgs({ cookie: '', name: '', features: features }, req, domain)); return; }
 
         // Fetch the node from the database
         obj.db.Get(req.query.node, function (err, nodes) {
@@ -2306,6 +2307,7 @@ module.exports.CreateWebServer = function (parent, db, args, certificates, doneF
 
             // Generate a cookie and respond
             var cookie = parent.encodeCookie({ userid: user._id, domainid: user.domain, nodeid: node._id, tcpport: port }, parent.loginCookieEncryptionKey);
+            if (page == 'ssh') { res.set({ 'Content-Security-Policy': res.locals.cspWasm }); }
             render(req, res, getRenderPage(page, req, domain), getRenderArgs({ cookie: cookie, name: encodeURIComponent(node.name).replace(/'/g, '%27'), serverCredentials: serverCredentials, features: features }, req, domain));
         });
     }
@@ -3279,6 +3281,7 @@ module.exports.CreateWebServer = function (parent, db, args, certificates, doneF
                     uiViewMode = 'default3';
                 }
                 // Refresh the session
+                dbGetFunc.res.set({ 'Content-Security-Policy': dbGetFunc.res.locals.cspWasm });
                 render(dbGetFunc.req, dbGetFunc.res, getRenderPage(uiViewMode, dbGetFunc.req, domain), getRenderArgs({
                     authCookie: authCookie,
                     authRelayCookie: authRelayCookie,
@@ -3745,6 +3748,7 @@ module.exports.CreateWebServer = function (parent, db, args, certificates, doneF
                 const authCookie = obj.parent.encodeCookie({ userid: user._id, domainid: domain.id, ip: req.clientIp }, obj.parent.loginCookieEncryptionKey);
                 const authRelayCookie = obj.parent.encodeCookie({ ruserid: user._id, domainid: domain.id }, obj.parent.loginCookieEncryptionKey);
                 var httpsPort = ((obj.args.aliasport == null) ? obj.args.port : obj.args.aliasport); // Use HTTPS alias port is specified
+                res.set({ 'Content-Security-Policy': res.locals.cspWasm });
                 render(req, res, getRenderPage('xterm', req, domain), getRenderArgs({ serverDnsName: obj.getWebServerName(domain, req), serverRedirPort: args.redirport, serverPublicPort: httpsPort, authCookie: authCookie, authRelayCookie: authRelayCookie, logoutControls: encodeURIComponent(JSON.stringify(logoutcontrols)).replace(/'/g, '%27'), name: EscapeHtml(node.name) }, req, domain));
             });
         } else {
@@ -4339,7 +4343,7 @@ module.exports.CreateWebServer = function (parent, db, args, certificates, doneF
         if (domain == null) { return; }
 
         parent.debug('web', 'handlePlayerRequest: sending player');
-        res.set({ 'Cache-Control': 'no-store' });
+        res.set({ 'Cache-Control': 'no-store', 'Content-Security-Policy': res.locals.cspWasm });
         render(req, res, getRenderPage('player', req, domain), getRenderArgs({}, req, domain));
     }
 
@@ -4467,7 +4471,7 @@ module.exports.CreateWebServer = function (parent, db, args, certificates, doneF
                     // Lets respond by sending out the desktop viewer.
                     var httpsPort = ((obj.args.aliasport == null) ? obj.args.port : obj.args.aliasport); // Use HTTPS alias port is specified
                     parent.debug('web', 'handleSharingRequest: Sending guest sharing page for \"' + c.uid + '\", guest \"' + c.gn + '\".');
-                    res.set({ 'Cache-Control': 'no-store' });
+                    res.set({ 'Cache-Control': 'no-store', 'Content-Security-Policy': res.locals.cspWasm });
                     render(req, res, getRenderPage('sharing', req, domain), getRenderArgs({ authCookie: authCookie, authRelayCookie: '', domainurl: encodeURIComponent(domain.url).replace(/'/g, '%27'), nodeid: c.nid, serverDnsName: obj.getWebServerName(domain, req), serverRedirPort: args.redirport, serverPublicPort: httpsPort, expire: c.expire, viewOnly: (c.vo == 1) ? 1 : 0, nodeName: encodeURIComponent(node.name).replace(/'/g, '%27'), features: c.p, features2: features2 }, req, domain));
                 }
             });
@@ -7069,11 +7073,13 @@ module.exports.CreateWebServer = function (parent, db, args, certificates, doneF
             }
 
             // Finish setup security headers
-            var cspBase = "default-src 'none'; font-src 'self' fonts.gstatic.com data:; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' " + extraScriptSrc + "; connect-src 'self'" + geourl + selfurl + "; img-src 'self' blob: data:" + geourl + extraImgSrc + " data:; style-src 'self' 'unsafe-inline' fonts.googleapis.com; frame-src 'self' blob: mcrouter:" + extraFrameSrc + "; media-src 'self'; form-action 'self' " + duoSrc + "; manifest-src 'self'";
+            var cspBase = "default-src 'none'; font-src 'self' fonts.gstatic.com data:; script-src 'self' 'unsafe-inline' " + extraScriptSrc + "; connect-src 'self'" + geourl + selfurl + "; img-src 'self' blob: data:" + geourl + extraImgSrc + " data:; style-src 'self' 'unsafe-inline' fonts.googleapis.com; frame-src 'self' blob: mcrouter:" + extraFrameSrc + "; media-src 'self'; form-action 'self' " + duoSrc + "; manifest-src 'self'";
             if (hasAllowedFramingOrigins) {
                 var frameAncestors = "'self'" + (framingOrigins.length > 0 ? ' ' + framingOrigins.join(' ') : '');
                 cspBase += "; frame-ancestors " + frameAncestors;
             }
+            // CSP variant with wasm-unsafe-eval for terminal routes that use xterm-addon-image
+            res.locals.cspWasm = cspBase.replace("script-src 'self' 'unsafe-inline'", "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'");
             const headers = {
                 'Referrer-Policy': 'no-referrer',
                 'X-XSS-Protection': '1; mode=block',
